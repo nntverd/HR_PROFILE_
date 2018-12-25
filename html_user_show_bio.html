@@ -1,0 +1,79 @@
+<div id=id_div_bio_status></div>
+<div>
+  <img src="https://openclipart.org/image/2400px/svg_to_png/247324/abstract-user-flat-1.png" width=200px height=200px  alt="Smiley face" >
+</div>
+<div id=id_div_noneditable>
+  <div><h3>
+    <span id=id_div_bio_fname></span>
+    <span id=id_div_bio_sname></span>
+  </h3></div>
+  <b>Email:</b><div id=id_div_bio_email></div>
+  <b>Телефон:</b><div id=id_div_bio_phone></div>
+  <b>Сопроводительное письмо:</b><div id=id_div_bio_letter></div>
+  <b>Ссылка на резюме:</b><div id=id_div_bio_resume_link></div>
+  <button onclick=FBioEdit()>Редактировать</button> 
+</div>
+<div id=id_div_editable hidden>
+  Имя (Отчество - пожеланию): <input id=id_inp_bio_fname onkeydown=FBioUpdateEnable() ><br>
+  Фамилия:<input id=id_inp_bio_sname onkeydown=FBioUpdateEnable() ><br>
+  Email: <input id=id_inp_bio_email onkeydown=FBioUpdateEnable() ><br>
+  Номер телефона: <input id=id_inp_bio_phone onkeydown=FBioUpdateEnable() ><br>
+  <button id=id_btn_bio_update onclick=FBioUpdate() hidden>Сохранить изменения</button> 
+  <button onclick=FBioUpdateCancel() >Отмена</button> 
+
+</div>
+<hr>
+<script>
+  function F_UpdateBio(){
+    var fileid = document.getElementById('id_inp_password_loggin_id').value;
+    google.script.run.withSuccessHandler(onBioUpdate).withFailureHandler(onBioF).GAPI_GET_BIO( fileid );
+    
+  }
+  function onBioUpdate(e){
+    document.getElementById('id_div_bio_status').innerText = '';
+    var data = JSON.parse(e);
+    document.getElementById('id_inp_bio_fname').value = data.fname;
+    document.getElementById('id_inp_bio_sname').value = data.sname;
+    document.getElementById('id_inp_bio_email').value = data.email;
+    document.getElementById('id_inp_bio_phone').value = data.phone;
+    
+    document.getElementById('id_div_bio_fname').innerText = data.fname;
+    document.getElementById('id_div_bio_sname').innerText = data.sname;
+    document.getElementById('id_div_bio_email').innerText = data.email;
+    document.getElementById('id_div_bio_phone').innerText = data.phone;
+    document.getElementById('id_div_bio_letter').innerText = data.letter;
+    document.getElementById('id_div_bio_resume_link').innerText = data.resume;
+    document.getElementById('id_btn_bio_update').style.display = "none";
+  }
+  
+  
+  function onBioF(e){
+    document.getElementById('id_div_bio_status').innerText = JSON.stringify(e);
+  }
+  
+  function FBioUpdateEnable(){
+    document.getElementById('id_btn_bio_update').style.display = "block";
+  }
+  function FBioUpdate(){
+    var fname = document.getElementById('id_inp_bio_fname').value;
+    var sname = document.getElementById('id_inp_bio_sname').value;
+    var email = document.getElementById('id_inp_bio_email').value;
+    var phone = document.getElementById('id_inp_bio_phone').value;
+    var fileid = document.getElementById('id_inp_password_loggin_id').value;
+    google.script.run.withSuccessHandler(onBioUpdate).withFailureHandler(onBioF).GAPI_UPD_FNAME( fileid, fname );
+    google.script.run.withSuccessHandler(onBioUpdate).withFailureHandler(onBioF).GAPI_UPD_SNAME( fileid, sname );
+    google.script.run.withSuccessHandler(onBioUpdate).withFailureHandler(onBioF).GAPI_UPD_EMAIL( fileid, email );
+    google.script.run.withSuccessHandler(onBioUpdate).withFailureHandler(onBioF).GAPI_UPD_PHONE( fileid, phone );
+    document.getElementById('id_div_noneditable').style.display = "block";
+    document.getElementById('id_div_editable').style.display = "none";
+  }
+  function FBioEdit(){
+    document.getElementById('id_div_noneditable').style.display = "none";
+    document.getElementById('id_div_editable').style.display = "block";
+  }
+  function FBioUpdateCancel(){
+    document.getElementById('id_div_noneditable').style.display = "block";
+    document.getElementById('id_div_editable').style.display = "none";
+  
+  }
+</script>

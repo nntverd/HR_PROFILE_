@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('styles'); ?>
+  </head>
+  <body>
+     <?!= include('html_password'); ?>
+     <div id=id_div_main_block hidden>
+       
+       <div>
+         <div>
+           <span>  
+             <b>Персональные данные</b>
+           </span>
+           <span>
+             <button onclick="FShowBlock('id_html_user_show_bio')" >Развернуть</button>
+           </span>
+         </div>
+         <hr> 
+         <div id=id_html_user_show_bio >
+           <?!= include('html_user_show_bio'); ?>
+         </div><!---->
+       </div>
+       
+       
+       <div>
+         <div>
+           <span>  
+             <b>Вакансии</b>
+           </span>
+           <span>
+             <button onclick="FShowBlock('id_html_vac')" >Развернуть</button>
+           </span>
+         </div>
+         <hr>
+         <div id=id_html_vac hidden>
+           <?!= include('html_vac'); ?>
+         </div>
+       </div>
+       <!---->
+     </div>
+      
+  </body>
+  <script>
+    var VAC_STATUSES_JSON_ = <?=JSON.stringify(VAC_STATUSES_JSON);?>;
+    var VAC_STATUSES_JSON = JSON.parse(VAC_STATUSES_JSON_);
+    console.log( "JSON.stringify(VAC_STATUSES_JSON)", VAC_STATUSES_JSON.new );
+    
+//    var VAC_STATUSES_JSON = {
+//  "new":                { "value": "new",                "index": 0  },
+//  "asked2why":          { "value": "asked2why",          "index": 1  },
+//  "remind2why":         { "value": "remind2why",         "index": 2  },
+//  "answered2why":       { "value": "answered2why",       "index": 3  },
+//  "asked4test":         { "value": "asked4test",         "index": 4  },
+//  "remind4test":        { "value": "answeredtest",       "index": 5  },
+//  "answeredtest":       { "value": "answeredtest",       "index": 6  },
+//  "invited":            { "value": "invited",            "index": 7  },
+//  "remindinvited":      { "value": "remindinvited",      "index": 8  },
+//  "invitationread":     { "value": "invitationread",     "index": 9  },
+//  "meetinghappened":    { "value": "meetinghappened",    "index": 10 },
+//  "hired":              { "value": "hired",              "index": 11 },
+//  "declinedByCompany":  { "value": "declinedByCompany",  "index": 12 },
+//  "declinedByEmployee": { "value": "declinedByEmployee", "index": 13 },
+//};
+    
+    function FShowBlock(__showid){
+      console.log( __showid );
+      FHideBlocks();
+      document.getElementById(__showid).style.display = 'block';
+    }
+    
+    function FHideBlocks(){
+      var blocks = [
+        'id_html_user_show_bio',
+        'id_html_vac'
+      ];
+      for( var i in blocks ){
+        console.log( blocks[i] );
+        document.getElementById(blocks[i]).style.display = 'none';
+      }
+    }
+    function FInterpretStatus( __status ){
+      console.log('FInterpretStatus', 'status', __status)
+      switch( __status ){
+        case VAC_STATUSES_JSON.newstat.value           : return 'Вы откликнулись на текущую Вакансию. Скоро мы сообщим Вам, что нужно сделать на следующем шаге';
+        case VAC_STATUSES_JSON.asked2why.value         : return 'Мы отправили Вам предложение ответить на 2 вопроса';
+        case VAC_STATUSES_JSON.remind2why.value        : return 'Напоминание. Мы отправили Вам предложение ответить на 2 вопроса, но до сих пор не получили от Вас ответа';
+        case VAC_STATUSES_JSON.answered2why.value      : return 'Мы получили Ваши ответы. Они в очереди на обработку. Наберитесь терпения';
+        case VAC_STATUSES_JSON.asked4test.value        : return 'Мы отправили Вам предложение заполнить небольшую анкету';
+        case VAC_STATUSES_JSON.remind4test.value       : return 'Напоминание. Мы отправили Вам предложение заполнить небольшую анкету, но до сих пор не получили от Вас ответа';
+        case VAC_STATUSES_JSON.answeredtest.value      : return 'Мы получили результаты Вашего анкетирования и сейчас обрабатываем их. Наберитесь терпения';
+        case VAC_STATUSES_JSON.invited.value           : return 'Мы пригласили Вас в наш офис для собеседования';
+        case VAC_STATUSES_JSON.remindinvited.value     : return 'Напоминание. Мы пригласили Вас в наш офис для собеседовани, но пока Вы не подтвердили свой визит';
+        case VAC_STATUSES_JSON.invitationread.value    : return 'Вы подтвердили встречу и мы с нетерпением ждем, когда Вы придёте';
+        case VAC_STATUSES_JSON.meetinghappened.value   : return 'Встреча состоялась, совсем скоро мы сообщим Вам о своем решении';
+        case VAC_STATUSES_JSON.hired.value             : return 'Мы с радостью пригласили Вас в нашу команду на данную должность';
+        case VAC_STATUSES_JSON.declinedByCompany.value : return 'Мы неготовы предложить Вам текущую должность';
+        case VAC_STATUSES_JSON.declinedByEmployee.value: return 'Вы приняли решение отказаться от данной должности';
+//        case '': return ''; ,,,,,,,,,
+        default: return "Неизвестный статус";
+      }
+    }
+  </script>
+</html>
+
+

@@ -1,0 +1,81 @@
+<button id=id_btn_bio_update onclick=onGetVacData() >Получить данные</button> 
+<button id=id_btn_bio_update onclick=FShowVac() >Показать</button> 
+<div id=id_div_vac_status></div>
+Список вакансий, на которые Вы откликнулись
+<div id=id_div_vac_list>
+  
+</div>
+<hr>
+<div>
+  <div id=id_opened_vac_cur_stage></div>
+
+  <div id=id_opened_vac_next_step></div>
+
+  <div id=id_opened_vac_history></div>
+</div>
+
+<script>
+var vac_data = [];
+
+function onGetVacData(){
+  var fileid = document.getElementById('id_inp_password_loggin_id').value;
+  document.getElementById('id_div_vac_status').innerText = "...";
+  google.script.run.withSuccessHandler(onVacListS).withFailureHandler(onVacF).GAPI_VAC_DATA( fileid );
+}
+
+function onVacF(e){
+    document.getElementById('id_div_vac_status').innerText = JSON.stringify(e);
+}
+
+var vac_buttons_html = '';
+
+function onVacListS(e){
+  console.log( e );
+  vac_data = JSON.parse(e);
+//  vac_data = e;
+  document.getElementById('id_div_vac_status').innerText = "Вакансии получены";
+  console.log( vac_data );
+  vac_buttons_html = "<div>";
+  for( var i=1;i<vac_data.length;i++ ){
+    var x =  JSON.parse(vac_data[i]);
+    console.log(x.vacname, x.statuses.current)
+    if( (x.statuses.current == 'declinedByCompany') || ( x.statuses.current == 'declinedByEmployee')  ){
+//    console.log( x )
+      vac_buttons_html += "<button onclick=FChooseVac('"+x.vacid+"')>"+x.vacname+"(closed)</button>"
+    }
+    else{
+      console.log( x.vacname )
+      vac_buttons_html += "<button onclick=FChooseVac('"+x.vacid+"')>"+x.vacname+"</button>"
+    }
+  }
+  vac_buttons_html += "<hr></div>"
+  document.getElementById('id_div_vac_list').innerHTML = vac_buttons_html;
+}
+
+var vac_desc_html = ''; 
+var vac_hist_html = '';
+function FChooseVac(__vacid){
+  vac_desc_html = "<div>";
+  for( var i=1;i<vac_data.length;i++ ){
+    var x =  JSON.parse(vac_data[i]);
+//    console.log( x )
+    if( x.vacid == __vacid ){
+      vac_desc_html += "Открыта вакансия " + x.vacname;
+      vac_hist_html = '<h3>История изменений</h3>';
+      
+      var hist = x.statuses.history;
+      for( var istatus in hist ){
+        vac_hist_html += "<div>" + hist[istatus].date + " | " + FInterpretStatus( hist[istatus].status ) + "</div>";
+      }
+    }
+  }
+  
+  vac_desc_html += "</div>";
+  document.getElementById('id_div_vac_list').innerHTML = vac_buttons_html+vac_desc_html;
+  document.getElementById('id_opened_vac_history').innerHTML = vac_hist_html;
+}
+function FShowVac(){
+  console.log(vac_data);
+}
+</script>
+

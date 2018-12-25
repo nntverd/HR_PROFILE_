@@ -1,0 +1,52 @@
+<div id=id_personaltest_status><div>
+<div id=id_personaltest_main>
+  <h2>Определите на шкале (от 0 до 4), насколько часто следующие высказывания отражают ваше отношение: </h2>
+  <div id=id_personaltest_question>
+  
+    <div id=id_personaltest_buttons>
+      <br>
+      <button onclick="F_BUT_SEND_ANSWER(0)">Никогда (0)</button><br>
+      <button onclick="F_BUT_SEND_ANSWER(1)">Редко (1)</button><br>
+      <button onclick="F_BUT_SEND_ANSWER(2)">Иногда (2)</button><br>
+      <button onclick="F_BUT_SEND_ANSWER(3)">Часто (3)</button><br>
+      <button onclick="F_BUT_SEND_ANSWER(4)">Всегда (4)</button><br>
+    <div>
+  </div>
+  
+<div>
+  
+<!--
+https://script.google.com/macros/s/AKfycbxDUonJnZcJGRQTP1t-JUHvoZZYy5Veri4rP6eTKcX9yw6EcRI/exec?test=personaltest&id1=1YcV0-HWl08aeJhaRCguC1lhOhWL4sUU4fAwBZrYMVbQ&id2=f2jp
+https://script.google.com/macros/s/AKfycbyAyuVM5kP8p1p4LDltopdfTbH0qPZ2F9fG0BWNfHQ/dev?test=personaltest&id1=1YcV0-HWl08aeJhaRCguC1lhOhWL4sUU4fAwBZrYMVbQ&id2=f2jp
+-->
+<script>
+  var quesid   = <?=quesid;?>;
+  var queslist = <?=queslist;?>;
+  var fileid = <?=_fileid_;?>;
+  var vacid = <?=_vacid_;?>;
+  var ans_id = 0;
+  var ques_id = 0;
+  var buttons = document.getElementById('id_personaltest_buttons').innerHTML;
+  function FGetNextQuestion(){
+    console.log( 'FGetNextQuestion()', quesid, queslist )
+    
+    google.script.run.withSuccessHandler(onPTS).withFailureHandler(onPTF).GAPI_TESTGETNEXTQUEST( fileid, quesid, queslist );
+  }
+  FGetNextQuestion();
+  function onPTS(ex){
+//    document.getElementById('id_personaltest_status').innerText = ex;
+    var e = JSON.parse(ex);
+    var ques = e[0];
+    ans_id   = e[1];
+    ques_id  = e[2];
+    document.getElementById('id_personaltest_question').innerHTML = ques + buttons;
+//    FGetNextQuestion();
+  }
+  function onPTF(e){
+    document.getElementById('id_personaltest_status').innerText = e;
+  }
+  function F_BUT_SEND_ANSWER(answer){
+    document.getElementById('id_personaltest_question').innerHTML = "...";
+    google.script.run.withSuccessHandler(onPTS).withFailureHandler(onPTF).GAPI_TESTWRITENEXTANSWER( fileid, quesid, queslist, ques_id, ans_id, answer );
+  }
+</script>

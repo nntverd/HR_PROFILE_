@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <div id=main>
+      <h1>Два коротких вопроса</h1>
+      Почему Вы выбрали нашу компанию?
+      <div>
+        <textarea id="id_area_text_1"  cols=50 rows = 3> </textarea>
+      </div>
+      Почему мы должны выбрать имено Вас?
+      <div>
+        <textarea id="id_area_text_2" cols=50 rows = 3> </textarea>
+      </div>
+      <button onclick=ReadAreaText()>Ответить</button>
+    </div>
+    <div id=status></div>
+  </body>
+  <script>
+    var fileid = <?=_fileid_;?>;
+    var vacid = <?=_vacid_;?>;
+    function ReadAreaText(){
+      var text1 = document.getElementById('id_area_text_1').value;
+      var text2 = document.getElementById('id_area_text_2').value;
+      console.log( text1 );
+      console.log( text2 );
+      if(fileid == 0 || vacid == 0 ){ 
+        alert('Возникла ошибка, обратитесь в компанию по email hr@ains.kz. Прикрепите к письму ссылку на данную страницу.'); 
+        return;  
+      }
+      text1 = text1.trim();
+      text2 = text2.trim();
+      if( text1 == "" || text2 == "" ){
+        alert('Не оставляйте ответы пустыми. Заполните каждое из полей'); 
+        return;
+      }
+      document.getElementById('status').innerText = "Отправка ответа"
+      document.getElementById('main').style.display = "none"
+      
+      google.script.run.withSuccessHandler(onS).withFailureHandler(onF).GAPI_2WHY_ANSWER( fileid, vacid, text1, text2 );
+    }
+    function onF(e){
+      document.getElementById('status').innerText = JSON.stringify(e);
+    }
+    function onS(e){
+      document.getElementById('status').innerText = "Ответ отправлен";
+    }
+  </script>
+</html>
+
+
