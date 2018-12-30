@@ -132,3 +132,97 @@ function GAPI_TESTWRITENEXTANSWER( _fileid_, quesid, queslist, Q_ID, ANS_ID, ANS
     throw e; 
   }
 }
+
+function GAPI_OPENPROFILEBYEMAIL( __email ){
+  var fileid = FGetFileIdByEmail(__email);
+  if(fileid == 0){
+    throw "There is no such profile " + __email;
+  }
+  var ret = FGetAdminDataBuId(fileid);
+  return JSON.stringify(ret);
+}
+function FGetAdminDataBuId(__fileid){
+  var biosheet = FOpenSheet( __fileid, 'bio' );
+  var vacsheet = FOpenSheet( __fileid, 'vac' );
+  var biodata = biosheet.getDataRange().getValues();
+  var vacdata = vacsheet.getDataRange().getValues();
+  
+  var ret = {
+    "bio": biodata,
+    "vac": vacdata,
+    "fileid":__fileid
+  }
+  return ret;
+}
+function FGetFileIdByEmail(__email){
+   var loyal_folder = DriveApp.getFolderById(ID_PROFILE_FOLDER_LOYAL);
+  var files = loyal_folder.getFiles();
+  var file_exist = 0;
+  var openedfile = '';
+  while( files.hasNext() ){
+    var file = files.next();
+    if( file.getName() == __email ){
+      file_exist = 1;
+      openedfile = file;
+      return file.getId();
+    }
+  }
+  return 0;
+}
+
+function GAPI_F_ADMIN_DECLINE_BY_COMPANY(__fileid, __vacid){
+  
+  FChangeStatus( __fileid, __vacid, VAC_STATUSES_JSON.declinedByCompany.value );
+  var ret = FGetAdminDataBuId(__fileid);
+  return JSON.stringify(ret); 
+}
+
+function GAPI_F_ADMIN_MEETINGHAPENED( __fileid, __vacid, review ){
+  FChangeStatus( __fileid, __vacid, VAC_STATUSES_JSON.meetinghappened.value );
+  var biosheet = FOpenSheet( __fileid, 'bio' );
+
+  FAddHistoryParam(biosheet, review, ADDR_RESUME_REVIEW)
+  var ret = FGetAdminDataBuId(__fileid);
+  return JSON.stringify(ret);
+}
+function GAPI_F_ADMIN_HIRE(__fileid, __vacid){
+  FChangeStatus( __fileid, __vacid, VAC_STATUSES_JSON.hired.value );
+  var ret = FGetAdminDataBuId(__fileid);
+  return JSON.stringify(ret);
+}
+
+function GAPI_RECOVERY( __email ){
+  var files = DriveApp.getFolderById(ID_PROFILE_FOLDER_ALL).getFiles();
+  var file = 0;
+  while(files.hasNext()){
+    var _file = files.next();
+//    Logger.log( _file );
+    if( _file.getId() == __email ){
+      file = _file.getId();
+      break;
+    }
+    if( _file.getName() == __email ){
+      file = _file.getId();
+      break;
+    }
+  }
+  if( file == 0 ){
+    return([0, "Нет пользователя с таким логином"])
+  }
+  Logger.log( file );
+  
+  var newpassword = Math.random().toString(36).substring(2, 6);
+  SpreadsheetApp.openById(file).getSheetByName('bio').getRange(ADDR_RESUME_PASWRD[1], ADDR_RESUME_PASWRD[2]).setValue(newpassword);
+  
+  var emailadd__ = SpreadsheetApp.openById(file).getSheetByName('bio').getRange(ADDR_RESUME_EMAIL[1], ADDR_RESUME_EMAIL[2]).getValue();
+  var fname = SpreadsheetApp.openById(file).getSheetByName('bio').getRange(ADDR_RESUME_EMAIL[1], ADDR_RESUME_EMAIL[2]).getValue();
+//  var emailadd = SpreadsheetApp.openById(file).getSheetByName('bio').getRange(ADDR_RESUME_EMAIL[1], ADDR_RESUME_EMAIL[2]).getValue();
+  var emailadd = JSON.parse( emailadd__ ).current;
+  var email = "Здравствуйте, " + fname + "\n";
+  var email = "Новый пароль " + newpassword + "\n";
+  email += EMAILS.sing;
+  
+  FSendEmailToUser(emailadd, "Восстановление пароля | ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ", email);
+  
+  return ([1, "Новый пароль отправлен Вам на почту. Проверьте все входящие папки, включая спам"]);
+}

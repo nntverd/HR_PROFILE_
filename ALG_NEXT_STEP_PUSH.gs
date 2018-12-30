@@ -94,14 +94,17 @@ function FPushNextStageInResponses(){
         }
         case VAC_STATUSES_JSON.hired.value:{
           FNotifyThatHired( file.getId(), x.vacid, x.vacname );
+          FChangeStatus( file.getId(), x.vacid, VAC_STATUSES_JSON.finish.value );
           continue;
         }  
         case VAC_STATUSES_JSON.declinedByCompany.value:{
           FNotifyThatDeclinedByCompany( file.getId(), x.vacid, x.vacname );
+          FChangeStatus( file.getId(), x.vacid, VAC_STATUSES_JSON.finish.value );
           continue;
         }
         case VAC_STATUSES_JSON.declinedByEmployee.value:{
           FNotifyThatDeclinedByEmployee( file.getId(), x.vacid, x.vacname );
+          FChangeStatus( file.getId(), x.vacid, VAC_STATUSES_JSON.finish.value );
           continue;
         }
       }
@@ -131,7 +134,7 @@ function FWelcomeToVac(__fileid, __vacid, __vacname){
   var bio_sheet = FOpenSheet( __fileid, 'bio' );
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   // send welcome email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.welcome[0], '')
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.welcome[0], '', false)
   var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Спасибо за отклик на вакансию " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
@@ -147,9 +150,9 @@ function FNotify2WhySended(__fileid, __vacid, __vacname){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FNotify2WhySended(__fileid, __vacid)' )
   // send email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask2why[0], link_base + "?test=2why&id1="+ __fileid +"&id2=" + __vacid );
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask2why[0], link_base + "?test=2why&id1="+ __fileid +"&id2=" + __vacid, false );
   email = email.replace( '{#name}', name );
-  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Ответьте всего на два вопроса";
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Ответьте всего на два вопроса! Вакансия " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
   // change status to remind
@@ -161,7 +164,7 @@ function FRemind2Why(__fileid, __vacid, __vacname){
   var bio_sheet = FOpenSheet( __fileid, 'bio' );
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FRemind2Why(__fileid, __vacid)' )
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask2why[0], link_base + "?test=2why&id1="+ __fileid +"&id2=" + __vacid );
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask2why[0], link_base + "?test=2why&id1="+ __fileid +"&id2=" + __vacid, false );
 //  var email = EMAILS.welcome[0] + EMAILS.decline + EMAILS.sing;
   email = email.replace( '{#name}', name );
   var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Вакансия " + __vacname + " | Напоминание";
@@ -176,7 +179,7 @@ function FNotify2WhyAnswered(__fileid, __vacid, __vacname){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FNotify2WhyAnswered(__fileid, __vacid)' )
   // send welcome email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.answer2why[0], '' );
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.answer2why[0], '', false );
   var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Вакансия " + __vacname + " | Мы получили Ваши ответы";
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
@@ -194,8 +197,8 @@ function FInvite4Test(__fileid, __vacid, __vacname){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FInvite4Test(__fileid, __vacid)' )
   // send email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask4test[0], '' );
-  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Анкета кандидата";
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.ask4test[0], '', false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Анкета кандидата! Вакансия " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
   // change status to remind
@@ -207,7 +210,7 @@ function FRemind4Test(__fileid, __vacid, __vacname){
   var bio_sheet = FOpenSheet( __fileid, 'bio' );
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FRemind2Why(__fileid, __vacid)' )
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.remind4test[0], link_base + "?test=personaltest&id1="+ __fileid +"&id2=" + __vacid );
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.remind4test[0], link_base + "?test=personaltest&id1="+ __fileid +"&id2=" + __vacid, false );
 //  email = email.replace( '{#name}', name );
   var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Вакансия " + __vacname + " | Напоминание";
   FSendEmailToUser(emailadd, subject, email)
@@ -220,7 +223,7 @@ function FNotifyTestAnswered(__fileid, __vacid, __vacname){
   var bio_sheet = FOpenSheet( __fileid, 'bio' );
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   // send notification that we see results
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.answered4test[0], '' );
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.answered4test[0], '', false );
   var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Вакансия " + __vacname + " | Анкета заполнена";
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
@@ -240,8 +243,8 @@ function FNotifyWeHaveInvited(__fileid, __vacid, __vacname){
   var bio_sheet = FOpenSheet( __fileid, 'bio' );
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   // send email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.invited[0], link_base + "?invate=confirminvated&id1="+ __fileid +"&id2=" + __vacid );
-  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Приглашение на собеседование ";
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.invited[0], link_base + "?invate=confirminvated&id1="+ __fileid +"&id2=" + __vacid, false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Приглашение на собеседование! Вакансия " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
   // change status to remind
@@ -254,8 +257,8 @@ function FRemindInvate(__fileid, __vacid, __vacname){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FRemindInvate(__fileid, __vacid)' )
   // send email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.remindinvated[0], link_base + "?invate=confirminvated&id1="+ __fileid +"&id2=" + __vacid );
-  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Приглашение на собеседование. Напоминание";
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.remindinvated[0], link_base + "?invate=confirminvated&id1="+ __fileid +"&id2=" + __vacid, false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Приглашение на собеседование. Напоминание!  Вакансия " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
 }
@@ -265,14 +268,23 @@ function FConfirmThatInvintationRead(__fileid, __vacid, __vacname){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   Logger.log( 'FConfirmThatInvintationRead(__fileid, __vacid)' )
   // send email
-  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.invitationread[0], '' );
-  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Мы ждем Вашего звонка";
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.invitationread[0], '', false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Мы ждем Вашего звонка!  Вакансия " + __vacname;
   FSendEmailToUser(emailadd, subject, email)
   FSendEmailToHr( emailadd, subject, email)
   // send notification
 }
 function FNotifyThatMeetingHappened(__fileid, __vacid, __vacname){
   // status changed by MANAGER
+  var link_base = "https://script.google.com/macros/s/AKfycbxDUonJnZcJGRQTP1t-JUHvoZZYy5Veri4rP6eTKcX9yw6EcRI/exec"
+  var bio_sheet = FOpenSheet( __fileid, 'bio' );
+  var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
+  Logger.log( 'FConfirmThatInvintationRead(__fileid, __vacid)' )
+  // send email
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.meetinghappened[0], '', false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - В системе заполнен отчет о вашем визите на собеседование! Вакансия " + __vacname;
+  FSendEmailToUser(emailadd, subject, email)
+  FSendEmailToHr( emailadd, subject, email)
   // send notification
 }
 
@@ -280,14 +292,38 @@ function FNotifyThatMeetingHappened(__fileid, __vacid, __vacname){
 function FNotifyThatHired(__fileid, __vacid, __vacname){
   // status changed by MANAGER
   // send notification
+  var bio_sheet = FOpenSheet( __fileid, 'bio' );
+  var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
+  Logger.log( 'FNotifyThatDeclinedByCompany(__fileid, __vacid)' )
+  // send email
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.hired[0], '', false );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Мы благодарим Вас за уделенное нам время! Вакансия " + __vacname;
+  FSendEmailToUser(emailadd, subject, email)
+  FSendEmailToHr( emailadd, subject, email)
 }
 function FNotifyThatDeclinedByCompany(__fileid, __vacid, __vacname){
   // status changed by MANAGER
   // send notification
+  var bio_sheet = FOpenSheet( __fileid, 'bio' );
+  var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
+  Logger.log( 'FNotifyThatDeclinedByCompany(__fileid, __vacid)' )
+  // send email
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.declinedByCompany[0], '', true );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Мы благодарим Вас за уделенное нам время! Вакансия " + __vacname;
+  FSendEmailToUser(emailadd, subject, email)
+  FSendEmailToHr( emailadd, subject, email)
 }
 function FNotifyThatDeclinedByEmployee(__fileid, __vacid, __vacname){
   // status changed by Employee
   // send notification
+  var bio_sheet = FOpenSheet( __fileid, 'bio' );
+  var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
+  Logger.log( 'FNotifyThatDeclinedByEmployee(__fileid, __vacid)' )
+  // send email
+  var email = FPrepareEmail(__fileid, __vacid, bio_sheet, EMAILS.declinedByEmployee[0], '', true );
+  var subject = "ТОО ИНСТИТУТ АВТОМАТИЗАЦИИ - Вы закрыли свое обращение! Спасибо за отклик";
+  FSendEmailToUser(emailadd, subject, email)
+  FSendEmailToHr( emailadd, subject, email)
 }
 
 
@@ -358,12 +394,16 @@ function F_IFTESTFINISHED( __fileid ){
   return 0;
 }
 
-function FPrepareEmail(__fileid, __vacid, bio_sheet, __body, __link){
+function FPrepareEmail(__fileid, __vacid, bio_sheet, __body, __link, __skipdecline){
   var emailadd = FGetCurrentParam( bio_sheet, ADDR_RESUME_EMAIL );
   var name = FGetFixParam(bio_sheet, ADDR_RESUME_F_NAME );
   if( name == 'undefined' ) name = "";
   else                      name = ", " + name;
-  var email = __body + __link + EMAILS.decline + EMAILS.sing;
+  var email = __body + __link;
+  if( !__skipdecline ) {
+    email += EMAILS.decline
+  }
+  email += EMAILS.sing;
   email = email.replace( '{#name}', name );
   email = email.replace( '{#id1}', __fileid );
   email = email.replace( '{#id2}', __vacid );

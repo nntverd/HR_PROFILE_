@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <div>
+      <h1>Панель администратора</h1>
+    </div>
+    <div>
+      <input type=text id=id_admin_find_profile />
+      <input type=checkbox id=id_admin_show_all_vac>
+      <div id=id_admin_findProfileStatus></div>
+      <div id=id_admin_findProfileresult></div>
+    </div>
+  </body>
+  <script>
+  
+    // Get the input field
+    var input = document.getElementById("id_admin_find_profile");
+    
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+      // Trigger the button element with a click
+        console.log( 'right key pressed', input.value );
+        var email = input.value;
+        document.getElementById("id_admin_findProfileStatus"). innerText = 'searching';
+        document.getElementById("id_admin_findProfileresult"). innerText = '';
+        google.script.run.withSuccessHandler(onADMIN_OPPF_S).withFailureHandler(onADMIN_OPPF_F).GAPI_OPENPROFILEBYEMAIL( email );
+      }
+    });
+    var admin_bio = 0;
+    var admin_vac = 0;
+    function onADMIN_OPPF_S(e){
+      console.log( e )
+      document.getElementById("id_admin_findProfileStatus"). innerText = '';
+      var res = JSON.parse(e);
+      admin_bio = res.bio;
+      admin_vac = res.vac;
+      admin_fileid = res.fileid;
+      var htmltext = '';
+      htmltext = FMakeHtmlFromBio( admin_bio, htmltext )
+      htmltext = FMakeHtmlFromVac( admin_vac, htmltext, admin_fileid )
+      console.log( htmltext )
+      document.getElementById("id_admin_findProfileresult"). innerHTML = htmltext;
+    }
+    
+    function onADMIN_OPPF_F(e){
+      console.log( e )
+    }
+    
+    function FMakeHtmlFromBio( __bio, __html ){
+      var output = '';
+      var fname = __bio[0][0];
+      var sname = __bio[1][0];
+      var email = JSON.parse(__bio[2][0]).current;
+      var phone = JSON.parse(__bio[3][0]).current;
+      var letter = JSON.parse(__bio[4][0]).current;
+      var url = JSON.parse(__bio[5][0]).current;
+      var anketa = 0;
+      var review = 0;
+      if( __bio.length > 7 ){
+        anketa = (__bio[7][0]);
+      }
+      if( __bio.length > 8 ){
+        review = (__bio[8][0]);
+      }
+      
+      console.log( fname, sname, email, phone, letter, url, anketa )
+      output += "<hr>";
+      output += "<h1>"+fname+" "+sname+"</h1>";
+      output += "<div>"+"email: "+email+"</div>";
+      output += "<div>"+"phone: "+phone+"</div>";
+      output += "<div>"+"letter: "+letter+"</div>";
+      output += "<div>"+"url: "+url+"</div>";
+      output += "<div>"+"anketa: "+anketa+"</div>";
+      output += "<div>"+"review: "+review+"</div>";
+      
+      output += "<hr>";
+      return __html + output;
+    }
+    
+    
+    function FMakeHtmlFromVac( __vac, __html, __fileid ){
+      var output = '';
+      var ch_box = document.getElementById('id_admin_show_all_vac').checked;
+      console.log( ch_box )
+      for( var i=1; i<__vac.length;i++ ){
+        var vac = JSON.parse(__vac[i][0]);
+        var vacid = vac.vacid;
+        var vacname = vac.vacname;
+        var curstatus = vac.statuses.current;
+        var hisstatus = JSON.stringify(vac.statuses);
+        var answers2why = JSON.stringify(vac.answer2why);
+        console.log( 'ch_box', ch_box )
+      
+        if( ch_box == true ){
+          if( curstatus.split('ecline').length>1 ) {
+            continue;
+          } 
+          if( curstatus.split('hire').length>1 ) {
+            continue;
+          }
+        }
+        output += "<hr>";
+        output += "<h3>"+vacname+" | "+vacid+"</h3>";
+        output += "<div>"+"curstatus: "+curstatus+"</div>";
+        output += "<div>"+"hisstatus: "+hisstatus+"</div>";
+        output += "<div>"+"answers2why: "+answers2why+"</div>";
+        
+        output += "<div>";
+        output += "<button onclick=\"F_ADMIN_DECLINE_BY_COMPANY('"+__fileid+"', '"+vacid+"')\" > DeclineByCompany"+"</button>";
+        output += "</div>";
+        
+        output += "<div>"
+        output += "<textarea id='admin_review_"+vacid+"' ></textarea>"
+        output += "<button onclick=\"F_ADMIN_MEETINGHAPENED('"+__fileid+"', '"+vacid+"')\" > Visit Interview"+"</button>";
+        output += "</div>";
+        
+        output += "<div>"
+        output += "<button onclick=\"F_ADMIN_HIRE('"+__fileid+"', '"+vacid+"')\" > HIRE"+"</button>";
+        output += "</div>";
+        output += "<hr>";
+      }
+      return __html + output;
+    }
+    
+    function F_ADMIN_DECLINE_BY_COMPANY(__fileid, __vacid){
+       console.log( "F_ADMIN_DECLINE_BY_COMPANY" )
+       google.script.run.withSuccessHandler(onADMIN_OPPF_S).withFailureHandler(onADMIN_OPPF_F).GAPI_F_ADMIN_DECLINE_BY_COMPANY( __fileid, __vacid );
+    }
+    function F_ADMIN_MEETINGHAPENED(__fileid, __vacid){
+       console.log( "F_ADMIN_MEETINGHAPENED" )
+       var review = document.getElementById( "admin_review_"+__vacid ).value;
+       console.log( review );
+       google.script.run.withSuccessHandler(onADMIN_OPPF_S).withFailureHandler(onADMIN_OPPF_F).GAPI_F_ADMIN_MEETINGHAPENED( __fileid, __vacid, review );
+    }
+    function F_ADMIN_HIRE(__fileid, __vacid){
+       console.log( "F_ADMIN_HIRE" )
+       google.script.run.withSuccessHandler(onADMIN_OPPF_S).withFailureHandler(onADMIN_OPPF_F).GAPI_F_ADMIN_HIRE( __fileid, __vacid );
+    }
+    
+    function fadmin_test(){
+      var htmltext = '';
+      htmltext = FMakeHtmlFromBio( admin_bio, htmltext )
+      console.log( htmltext )
+    }
+  </script>
+</html>
+
+

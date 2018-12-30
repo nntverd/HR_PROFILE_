@@ -30,7 +30,7 @@ https://script.google.com/macros/s/AKfycbyAyuVM5kP8p1p4LDltopdfTbH0qPZ2F9fG0BWNf
   function FGetNextQuestion(){
     console.log( 'FGetNextQuestion()', quesid, queslist )
     
-    google.script.run.withSuccessHandler(onPTS).withFailureHandler(onPTF).GAPI_TESTGETNEXTQUEST( fileid, quesid, queslist );
+    google.script.run.withSuccessHandler(onPTS).withFailureHandler(onPTF).GAPI_TESTGETNEXTQUEST( fileid, vacid );
   }
   FGetNextQuestion();
   function onPTS(ex){

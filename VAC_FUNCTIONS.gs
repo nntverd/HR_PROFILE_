@@ -1,4 +1,5 @@
 function APPLY_TO_VAC(__fileid, __vacname, __source, __sourceid){
+  Logger.log( 'APPLY_TO_VAC - START' )
 //  var pswrd = Math.random().toString(36).substring(2, 6);
   var sheet = FOpenSheet( __fileid, 'vac' );
   var data = sheet.getDataRange().getValues();
@@ -34,6 +35,7 @@ function APPLY_TO_VAC(__fileid, __vacname, __source, __sourceid){
   sheet.getRange(1,1,data.length).setValues( data );
   var loyal_folder = DriveApp.getFolderById(ID_PROFILE_FOLDER_LOYAL);
   loyal_folder.addFile(DriveApp.getFileById(__fileid));
+  Logger.log( 'APPLY_TO_VAC - FINISH' )
 }
 
 function FGetAllVac(__fileid){
